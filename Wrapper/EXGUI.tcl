@@ -61,6 +61,18 @@ button .browse -text Browse -command {
 }
 pack .browse -side left
 
+# Quit button, when selected this will execute the exit command.
+
+button .exit -text Quit -command {
+	exec stty -raw echo
+	exit
+	}
+
+pack .exit -side right
+
+
+
+
 # Reconfigure the terminal using the stty command. We want to configure
 # the standard input and output so that key presses are passed immediately
 # into the input buffer and not echoed by the terminal.
@@ -216,28 +228,42 @@ proc console_execute {} {
 }
 
 
-# Handle the up arrow. For now we are just printing out the list of
-# previously-executed commands. We put a line feed before the list so it prints
-# out nicely.
+# Handle the up arrow. The up arrow will trigger the "console_up" cmd. 
+# This procedure will remove whatever string is echoed to the screen,
+# and will replace it with whatever the previous command was. If you hit the up arrow three times,
+# the stdout will reflect the string that corresponds to the command you used three carriage returns ago.
+
+
 proc console_up {} {
 	global command command_list
-	puts "UPARR"
-}
+	set newlist $command_list
+	if {$command != ""} {
+		console_down} 
+	set command [lindex $command_list end]
+	set command_list [lrange $command_list 0 end-1]
+	puts -nonewline $command
+	set command_list $newlist
+	}		
+
+
+
+			
+# Removes whatever string is echoed to the string, no matter the length of the string.
 
 # Handle the down arrow.
 proc console_down {} {
 	global command command_list
-	if {[string length $command] > 0} {
+	for {set i 0} {[string length $command] > 0} {incr i} {
 						set command [string range $command 0 end-1]
 						puts -nonewline "\x08\x20\x08"
 	}
 }
 
 
-# Handle the left arrow.
+# Handle the left arrow. Trying to get the cursor in the text to shift and insert new characters.
 proc console_left {} {
 	global command command_list
-	puts "\a"
+	puts -nonewline "\x08"
 }
 
 # Handle the right arrow.
