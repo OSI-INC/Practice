@@ -13,12 +13,12 @@ const
 	check_length = 100;
 	fsi = 5; {field size for integers}
 	epl = 20; {elements per line}
-	min_length = 10000000;
+	min_length = 10;
 	max_length = 10000000;
 	length_step = 2;
 	depth = 1e5;
 	us_per_ms = 1000;
-	divide_threshold = 2;
+	divide_threshold = 100;
 
 type 
 	array_type = array of real; 
