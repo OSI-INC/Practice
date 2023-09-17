@@ -11,14 +11,15 @@ uses sysutils;
 const
 	check_sorting = false;
 	check_length = 100;
+	use_dc_sort = false;
 	fsi = 5; {field size for integers}
 	epl = 20; {elements per line}
 	min_length = 10;
 	max_length = 10000000;
 	length_step = 2;
-	depth = 1e5;
+	depth = 1e6;
 	us_per_ms = 1000;
-	divide_threshold = 100;
+	divide_threshold = 10;
 
 type 
 	array_type = array of real; 
@@ -27,7 +28,7 @@ var
 	a : array_type;
 	n,j : longint;
 	start_time : Qword;
-	num_reps: integer;
+	num_reps: longint;
 	sort_us: real;
 
 {
@@ -57,12 +58,12 @@ begin
 end;
 
 {
-	dcsort is a divide and conquor sort routine that takes an array of real numbers
+	dc_sort is a divide and conquor sort routine that takes an array of real numbers
 	or integers and sorts them in increasing order. We pass an array and the range
 	of indeces in the array that we want sorted. To sort an entire list we pass zero
 	and the length minus one for these indeces.
 }
-procedure dcsort(var a:array_type; i,j:longint);
+procedure dc_sort(var a:array_type; i,j:longint);
 
 var 
 	swap:boolean;
@@ -89,8 +90,8 @@ begin
 	right half.
 }
 		k:=i+((j-i) div 2);
-		dcsort(a,i,k);
-		dcsort(a,k+1,j);
+		dc_sort(a,i,k);
+		dc_sort(a,k+1,j);
 {
 	We have not been able to figure out how to combine these two halve in place,
 	so create a scratch-pad array into which we can copy elements from the
@@ -168,6 +169,75 @@ begin
 end;
 
 
+procedure quick_sort(var a:array_type;i,j:longint);
+
+var 
+	m,n,p,c,l:longint; 
+	b:real;
+	swap:boolean;
+
+begin
+	if j<=i then exit;
+	
+	if check_sorting then begin
+		writeln('Sorting ',i:1,' to ',j:1,'...');
+	end;
+	
+
+	if j-i+1>divide_threshold then begin
+
+		p:=i+((j-i) div 2);
+	
+		b:=a[p];
+		a[p]:=a[j];
+		a[j]:=b;
+
+		m:=i;
+		n:=j-1;
+		while m<n do begin
+			if a[m]>a[j] then begin
+				b:=a[m];
+				a[m]:=a[n];
+				a[n]:=b;
+				dec(n);
+			end else begin
+				inc(m);
+			end;
+		end;
+
+		if a[m]>a[j] then p:=m else p:=m+1;
+		b:=a[j];
+		a[j]:=a[p];
+		a[p]:=b;
+
+		if p-1>i then quick_sort(a,i,p-1);
+		if j>p+1 then quick_sort(a,p+1,j);
+		
+	end else begin
+
+		repeat
+			swap:=false;
+			for l:=i to j-1 do begin
+				if a[l]>a[l+1] then begin
+					b:=a[l];
+					a[l]:=a[l+1];
+					a[l+1]:=b;
+					swap:=true;
+				end;
+			end;
+		until not swap;
+	
+	end;
+
+	if check_sorting then begin
+		writeln('Result of sorting ',i:1,' to ',j:1,':');
+		for c:=i to j do begin
+			write(a[c]:fsi:0);
+			if (c mod epl = (epl - 1)) or (c = j) then writeln;
+		end;
+	end;
+end;
+
 begin
 {
 	Initialize the random number generator.
@@ -185,7 +255,8 @@ begin
 			write(a[j]:fsi:0);
 			if (j mod epl = (epl - 1)) or (j=length(a)-1) then writeln;
 		end;
-		dcsort(a,0,length(a)-1);
+		if use_dc_sort then dc_sort(a,0,length(a)-1)
+		else quick_sort(a,0,length(a)-1);
 		exit;
 	end;
 {
@@ -201,7 +272,7 @@ begin
 	sort a list of this length and store the start time.
 }
 		setlength(a,n);
-		num_reps:=round(depth/n); 
+		num_reps:=round(1.0*depth/n); 
 		if num_reps=0 then num_reps:=1;
 		start_time:=clock_milliseconds;
 {
@@ -209,22 +280,14 @@ begin
 }
 		for j:=1 to num_reps do begin 
 			randomize_list(a);
-			dcsort(a,0,length(a)-1);
+			if use_dc_sort then dc_sort(a,0,length(a)-1)
+			else quick_sort(a,0,length(a)-1);
 		end;
 {
 	Calculate average sort time, print with list length and increase length.
 }
 		sort_us:=1.0*(clock_milliseconds-start_time)/num_reps*us_per_ms;
-		writeln(n:1,' ',sort_us:0:1,' ');
+		writeln(n:1,' ',num_reps:1,' ',sort_us:0:1,' ');
 		n:=length_step*n;
 	until n>max_length;
 end.
-
-
-
- 
-
-
-
-
-
