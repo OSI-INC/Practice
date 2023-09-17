@@ -6,30 +6,33 @@ program dcsort;
 	generate random lists of increasing length and measure average sort time.
 }
 
+{$MODESWITCH CLASSICPROCVARS+}
+{$LONGSTRINGS ON}
+
 uses sysutils;
 
 const
-	check_sorting = false;
-	check_length = 100;
-	use_dc_sort = false;
-	fsi = 5; {field size for integers}
-	epl = 20; {elements per line}
-	min_length = 10;
-	max_length = 10000000;
-	length_step = 2;
-	depth = 1e6;
-	us_per_ms = 1000;
-	divide_threshold = 10;
+	demo_length=100;
+	fsi=5; {field size for integers}
+	epl=20; {elements per line}
+	min_length=10;
+	max_length=10000000;
+	length_step=2;
+	depth=1e5;
+	us_per_ms=1000;
+	default_divide_threshold=4;
 
 type 
-	array_type = array of real; 
+	integer=longint;
+	array_type=array of integer; 
+	sort_procedure_type=procedure(var a:array_type;i,j:integer);
 
 var
-	a : array_type;
-	n,j : longint;
-	start_time : Qword;
-	num_reps: longint;
-	sort_us: real;
+	answer:char;
+	sort:sort_procedure_type;
+	quit:boolean=false;
+	show_progress:boolean=false;
+	divide_threshold:integer;
 
 {
 	clock_milliseconds returns a sixty-four bit unsigned integer giving the
@@ -49,26 +52,30 @@ end;
 
 
 {	
-	Generate a random list of numbers up to 1000 in one of our lists.
+	Generate a random list of numbers. We allow the range of each random number to
+	be between zero and the length of the list, because lists that contain far fewer
+	possible values than they contain elements will present algorithms like quick
+	sort with particular problems, greatly decreasing their efficiency.
+	
 }
-procedure randomize_list(var a: array_type);
-var i:longint;
+procedure randomize_list(var a:array_type);
+var i,n:integer;
 begin
-	for i:=0 to length(a)-1 do a[i]:=random(1000);
+	n:=length(a);
+	for i:=0 to n-1 do a[i]:=random(n);
 end;
 
 {
-	dc_sort is a divide and conquor sort routine that takes an array of real numbers
-	or integers and sorts them in increasing order. We pass an array and the range
-	of indeces in the array that we want sorted. To sort an entire list we pass zero
-	and the length minus one for these indeces.
+	dcs_sort is a divide and conquor sort routine that uses a scratch array to
+	combine two sorted half-lists. We pass an array and the range of indeces in
+	the array that we want sorted. To sort an entire list we pass zero and the
+	length minus one for these indeces.
 }
-procedure dc_sort(var a:array_type; i,j:longint);
+procedure dcs_sort(var a:array_type; i,j:integer);
 
 var 
 	swap:boolean;
-	c,k,l,r:longint;
-	b:real;
+	c,k,l,r,b:integer;
 	scratch:array_type;
 
 begin
@@ -76,7 +83,7 @@ begin
 	We want to be able to check the sort routines, so here we report starting
 	this sort.
 }
-	if check_sorting then begin
+	if show_progress then begin
 		writeln('Sorting ',i:1,' to ',j:1,'...');
 	end;
 {
@@ -90,8 +97,8 @@ begin
 	right half.
 }
 		k:=i+((j-i) div 2);
-		dc_sort(a,i,k);
-		dc_sort(a,k+1,j);
+		dcs_sort(a,i,k);
+		dcs_sort(a,k+1,j);
 {
 	We have not been able to figure out how to combine these two halve in place,
 	so create a scratch-pad array into which we can copy elements from the
@@ -156,42 +163,63 @@ begin
 		until not swap;
 	end;
 {
-	Elements i through j inclusive should now be sorted in increasing order. We can
-	check by setting the check_sorting flag.
+	Elements i through j inclusive should now be sorted in increasing order. We can 
+	confirm this by setting the show_progress flag.
 }
-	if check_sorting then begin
+	if show_progress then begin
 		writeln('Result of sorting ',i:1,' to ',j:1,':');
 		for c:=i to j do begin
-			write(a[c]:fsi:0);
+			write(a[c]:fsi);
 			if (c mod epl = (epl - 1)) or (c = j) then writeln;
 		end;
 	end;
 end;
 
-
-procedure quick_sort(var a:array_type;i,j:longint);
+{
+	quick_sort performs the sort in place. We allocate no new arrays to hold a
+	temporary list. We pick a random element in the list. We call it the pivot
+	element. We put every element greater than the pivot on the right side of
+	the list. We put the pivot at the end of the left side. We then sort the
+	left and right sides. In this variant of the quick sort algorithm, we divide
+	and conquor only if the number of elements we are being asked to sort is
+	greater than a threshold. 
+}
+procedure quick_sort(var a:array_type;i,j:integer);
 
 var 
-	m,n,p,c,l:longint; 
-	b:real;
+	m,n,p,c,l,b:integer; 
 	swap:boolean;
 
 begin
+{
+	If we have only one element, we are already sorted.
+}
 	if j<=i then exit;
-	
-	if check_sorting then begin
+{
+	Show what we are doing if flag set.
+}
+	if show_progress then begin
 		writeln('Sorting ',i:1,' to ',j:1,'...');
 	end;
-	
-
+{
+	We will split the list into left and right halves and call quick sort on each
+	half only if there are a minimum number of elements in the range.
+}
 	if j-i+1>divide_threshold then begin
-
-		p:=i+((j-i) div 2);
-	
+{
+	Pick a random pivot element. We pick a random element to avoid quicksort being
+	slowed down by certain regular patterns that may arise in the list.
+}
+		p:=i+random(j-i);
+{
+	Swap the pivot element with the final element.
+}
 		b:=a[p];
 		a[p]:=a[j];
 		a[j]:=b;
-
+{
+	Move all elements greater than the pivot to the right side of the list.
+}
 		m:=i;
 		n:=j-1;
 		while m<n do begin
@@ -204,17 +232,22 @@ begin
 				inc(m);
 			end;
 		end;
-
+{
+	Move the pivot to the right edge of the left side of the list.
+}
 		if a[m]>a[j] then p:=m else p:=m+1;
 		b:=a[j];
 		a[j]:=a[p];
 		a[p]:=b;
-
+{
+	Assuming we have two or more elements, sort the left and right sides.
+}
 		if p-1>i then quick_sort(a,i,p-1);
 		if j>p+1 then quick_sort(a,p+1,j);
-		
 	end else begin
-
+{
+	For short ranges, bubble sort directly to save the work of dividing calling.
+}
 		repeat
 			swap:=false;
 			for l:=i to j-1 do begin
@@ -226,39 +259,33 @@ begin
 				end;
 			end;
 		until not swap;
-	
 	end;
-
-	if check_sorting then begin
+{
+	Show progress if requested.
+}
+	if show_progress then begin
 		writeln('Result of sorting ',i:1,' to ',j:1,':');
 		for c:=i to j do begin
-			write(a[c]:fsi:0);
+			write(a[c]:fsi);
 			if (c mod epl = (epl - 1)) or (c = j) then writeln;
 		end;
 	end;
 end;
 
+{
+	Measure sort time versus list length.
+}
+procedure measure_sort_time;
+
+var
+	a:array_type;
+	n,num_reps,j:integer;
+	start_time:qword;
+	sort_us:real;
+
 begin
-{
-	Initialize the random number generator.
-}
-	randomize;
-{
-	If the check_sorting flag is set, we are going to sort a list and print to the
-	screen.
-}
-	if check_sorting then begin
-		setlength(a,check_length);
-		randomize_list(a);
-		writeln('Initial:');
-		for j:=0 to length(a)-1 do begin
-			write(a[j]:fsi:0);
-			if (j mod epl = (epl - 1)) or (j=length(a)-1) then writeln;
-		end;
-		if use_dc_sort then dc_sort(a,0,length(a)-1)
-		else quick_sort(a,0,length(a)-1);
-		exit;
-	end;
+	writeln('Measure Sort Time');
+	writeln('Length Repetitions Microseconds');
 {
 	Set the first list length. We are going to increase the list length in
 	stages and measure the average execution time for lists of each length. For
@@ -280,8 +307,7 @@ begin
 }
 		for j:=1 to num_reps do begin 
 			randomize_list(a);
-			if use_dc_sort then dc_sort(a,0,length(a)-1)
-			else quick_sort(a,0,length(a)-1);
+			sort(a,0,length(a)-1);
 		end;
 {
 	Calculate average sort time, print with list length and increase length.
@@ -290,4 +316,102 @@ begin
 		writeln(n:1,' ',num_reps:1,' ',sort_us:0:1,' ');
 		n:=length_step*n;
 	until n>max_length;
+end;
+
+{
+	Demonstrate sorting by setting show_progress flag and sorting a list.
+}
+procedure demonstrate_sorting;
+
+var
+	a:array_type;
+	j:integer;
+	
+begin
+	writeln('Demonstrate Sorting');
+	show_progress:=true;
+	setlength(a,demo_length);
+	randomize_list(a);
+	writeln('Initial:');
+	for j:=0 to length(a)-1 do begin
+		write(a[j]:fsi);
+		if (j mod epl = (epl - 1)) or (j=length(a)-1) then writeln;
+	end;
+	sort(a,0,length(a)-1);
+	show_progress:=false;
+end;
+
+{
+	Test sorting by creating successively larger lists and checking each to see if
+	it is correctly sorted.
+}
+procedure test_sorting;
+
+var
+	a:array_type;
+	j,n:integer;
+	err:boolean;
+	
+begin
+	writeln('Test Sorting');
+	n:=min_length;
+	repeat 
+		write('Length ',n:1,'...');
+		setlength(a,n);
+		randomize_list(a);
+		sort(a,0,length(a)-1);
+		j:=0;
+		err:=false;
+		repeat
+			if a[j]>a[j+1] then err:=true;
+			inc(j);
+		until err or (j=n-1);
+		n:=length_step*n;
+		if err then writeln(' FAIL.') else writeln(' PASS.');
+	until n>max_length;
+end;
+
+{
+	Main Program.
+}
+begin
+{
+	Initialize the random number generator and configuration.
+}
+	randomize;
+	sort:=dcs_sort;
+	divide_threshold:=default_divide_threshold;
+{
+	Pick the sort algorithm.
+}
+	repeat
+		if (@sort=@dcs_sort) then
+			writeln('Sort algorithm is dcs_sort.')
+		else
+			writeln('Sort algorithm is quick_sort.');
+		writeln('Divide threshold is ',divide_threshold:1,'.');
+		writeln('D  Demonstrate sorting process.');
+		writeln('M  Measure sort time versus list length.');
+		writeln('T  Test sorting of various length lists.');
+		writeln('W  Use dcs_sort.');
+		writeln('X  Use quick_sort.');
+		writeln('Y  Set sort algorithm divide threshold.');
+		writeln('Q  Quit.');
+		write('? ');
+		readln(answer);
+		case answer of
+			'd','D' : demonstrate_sorting;
+			'm','M' : measure_sort_time;
+			't','T' : test_sorting;
+			'w','W' : sort:=dcs_sort;
+			'x','X' : sort:=quick_sort;
+			'y','Y' : begin
+				write('Enter divide threshold: ');
+				readln(divide_threshold);
+			end;			
+			'q','Q' : quit:=true;
+		else
+			writeln('Unrecognised selection "',answer,'".')
+		end;
+	until quit;
 end.
