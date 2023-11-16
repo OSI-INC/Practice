@@ -56,7 +56,6 @@ end;
 	be between zero and the length of the list, because lists that contain far fewer
 	possible values than they contain elements will present algorithms like quick
 	sort with particular problems, greatly decreasing their efficiency.
-	
 }
 procedure randomize_list(var a:array_type);
 var i,n:integer;
@@ -111,7 +110,7 @@ begin
 		r:=k+1;
 {
 	Go through the left and right halves, picking the lesser from each half and 
-	placing it in our 
+	placing it in our scratch pad.
 }
 		while (c<=j-i) do begin
 {
