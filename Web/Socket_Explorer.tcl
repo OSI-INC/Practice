@@ -9,7 +9,10 @@
 label $f.lcmd -text "Command:"
 pack $f.lcmd -side top
 set cmd_txt [LWDAQ_text_widget $f 50 20] 
-LWDAQ_print $cmd_txt "GET / HTTP/1.1"
+LWDAQ_print $cmd_txt {GET / HTTP/1.1
+User-Agent: Tcl
+Host: www.bndhep.net
+Accept-Language: en, mi}
 
 # Create a sub-frame within the master "f" frame of our Toolmaker
 # execution window.
@@ -42,7 +45,7 @@ pack $ff.lip $ff.eip $ff.lport $ff.eport $ff.lwait $ff.ewait -side left -expand 
 set ip "www.bndhep.net"
 set port "80"
 set cmd "GET /Temporary/Hello_Sailor.php"
-set wait "5"
+set wait "2"
 
 # Create another sub-frame.
 set ff [frame $f.f3]
