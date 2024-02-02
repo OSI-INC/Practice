@@ -66,44 +66,52 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 }
 ?>
 
-<p>The code below this paragraph sets the "post_string" and "get_string" variables.</p>
+<p>The code below this paragraph in the PHP file sets the "post_string" and "get_string" variables.</p>
 
 <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 	$post_string = $_POST["string"];
+	if ($post_string == "") {$post_string = "UNDEFINED";}
 } else {
-	$post_string = "";
+	$post_string = "UNDEFINED";
 }
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
 	$get_string = $_GET["string"];
+	if ($get_string == "") {$get_string = "UNDEFINED";}
 } else {
-	$get_string = "";
+	$get_string = "UNDEFINED";
 }
 ?>
 
-<p>Here is a form that generates a post request when we press the submit button.</p>
+<p>Here is a form that generates a post request when we press the submit button. The string value is the current value of "post_string", which will be "UNDEFINED" when we load the page with a GET request, or with a POST that does not specify the variable "string".</p>
 
 <form method="post" action="<?php echo $_SERVER['PHP_SELF'];?>">
-	<input type="text" name="string" value="ABCD">
+	<input type="text" name="string" value="<?php echo $post_string ?>">
 	<input type="submit" name="submit" value="POST_Submit">
 </form>
 
-<?php
-echo "<br>POST string: $post_string";
-?>
-
-<p>Here is a form that generates a get request when we press the submit button.</p>
+<p>Here is a form that generates a get request when we press the submit button. The string value is the current value of "get_string", which will be "UNDEFINED" when we load with a POST request, or with a GET that does not specify the variable "string".</p>
 
 <form method="get" action="<?php echo $_SERVER['PHP_SELF'];?>">
-	<input type="text" name="string" value="ABCD">
+	<input type="text" name="string" value="<?php echo $get_string ?>">
 	<input type="submit" name="submit" value="GET_Submit">
 </form>
 
+<p>Here are the GET, POST, and SERVER arrays after PHP receives the current request, generates the page, and transmits the pages back to the client.</p>
+
 <?php
-echo "<br>GET string: $get_string";
-echo "<br>Contents of the \$_GET Array:</br><pre>";
+echo "\$_GET Array:<br>\n";
+ECHO "<pre>\n";
 print_r($_GET);
-echo "<pre>"
+echo "</pre>\n";
+echo "\$_POST Array:<br>\n";
+echo "<pre>\n";
+print_r($_POST);
+echo "</pre>\n";
+echo "\$_SERVER Array:<br>\n";
+echo "<pre>\n";
+print_r($_SERVER);
+echo "</pre>\n";
 ?>
 
 </body>

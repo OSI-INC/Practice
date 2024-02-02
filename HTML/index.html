@@ -1,0 +1,87 @@
+<html>
+
+<head>
+<title>HTML Demonstration</title>
+<link rel="Stylesheet" href="style.css" type="text/css">
+</head>
+
+<body>
+
+<center>
+<h1>HTML Demonstration</h1>
+<small>
+&copy; 2021, Alice Hashemi, Open Source Instruments Inc.<br>
+&copy; 2023, Kevan Hashemi, Open Source Instruments Inc.
+</small>
+</center>
+
+<h2>Introduction</h2>
+
+<p>[29-DEC-23] Hi there! Welcome to the Practice/HTML demonstration directory. Open the "index.html" file in a text editor. That way you will be able to see the raw HTML code. Open it again in a web browser. That way you will also be able to see what the page looks like when it is rendered. When you edit and save "index.html", reload the file in the web browser to see your changes.</p>
+
+<p>Now, <i>this should be in italics</i> and <b>this should be in bold</b>. 
+
+This sentence will also be in the same paragraph, even though there are line breaks in the HTML file. When a browser renders the HTML, it treats line breaks like spaces, and it treats multiple spaces like one space. The paragraph does not end until you see an "end p tag".</p>
+
+<p>So this text appears in a new paragraph. Here are some special characters: &times; &div; &minus;.</p>
+
+<h2>Figures</h2>
+
+<p>Here we have a picture. The picture is centered along with its caption by use of a "center" tag. The centering ends later with an "end center" tag. We use an "img" tag to specify an image in the same directory as our HTML file. The image is "A3036C.jpg". We specify that the picture should be drawn with width "800", which is usually supposed to mean "800 pixels", but you never can tell, really.</p>
+
+<center>
+<img src="Image.jpg" width="800"><br>
+<small><b>Figure:</b> An Implantable Optical Stimulator.</small>
+</center>
+
+<p>The image does not have to be local, it could be an image that resides on a website. The image below is on the OSI website. We specify the image with a web link.</p>
+
+<center>
+<img src="https://www.opensourceinstruments.com/SCT/Batteries/CR1225_Tabs_Loaded.jpg" width=500><br>
+<small><b>Figure:</b> A Coin Cell Battery with Tabs Welded.</small>
+</center>
+
+<p>The figure caption we add after a "br" tag. The "br" tag generates a line break. The "small" tage makes small text.</p>
+
+<h2>Links</h2>
+
+<p>A linke, or "anchor", we make with an "a" tag followed by an "end a" tag. Here is a link to the OSI website: <a href="http://www.opensourceinstruments.com">Open Source Instruments</a>. Here is a link to a video: <a href="Video.mp4">video</a>. Here is a link to an image: <a href="Image.jpg">image</a>.</p>
+
+<h2>Tables</h2>
+
+<p>Here is an HTML table. It is centered and has its own caption. Rows begin with "tr" and end with "end tr" tags. Column heading cells begin with "th" and end with "end th". Other cells begin with "td" and end with "end td".</p>
+
+<center>
+<table border cellspacing=2>
+<tr><th>Col1</th><th>Col2</th></tr>
+<tr><td>1</td><td>3</td></tr>
+<tr><td>3</td><td>3</td></tr>
+<tr><td>6</td><td>3</td></tr>
+<tr><td>8</td><td>
+	<a href="https://www.opensourceinstruments.com/IST/"><img src="Image.jpg" width=50></a>
+</td></tr>
+</table>
+<small><b>Table:</b> An HTML Table.</small>
+</center>
+
+<p>One of the cells contains a link. The link itself is an image we click on to follow the link.</p>
+
+<h2>Video</h2>
+
+<p>Starting with HTML5, we can use a video tag to embed a video in our page.</p>
+
+<center>
+<video width=500 controls>
+	<source src="Video.mp4" type="video/mp4">
+</video><br>
+<small><b>Video:</b> Example Video. Press play to start.</small>
+</center>
+
+<p>The video above will play in its embedded window, and appears in the HTML just like an image. The "video" tag is similar to an "img" element, except that we must end it with an "end video" tag.</p>
+
+<h2>Stylesheets</h2>
+
+<p>You will see a "cascading style sheets" reference at the top of this HTML document. The style sheet is "screen.css". It defines how paragraphs and headings are supposed to look, how big the text should be, and what font to use. It specifies justification and paragraph indenting.</p>
+
+</body>
+</html>
