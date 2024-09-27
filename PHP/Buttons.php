@@ -40,7 +40,7 @@ function Product() {
 			<td>X:</td>
 			<td><input name="x" size="10" value="11"></td>
 			<td>Y:</td>
-			<td><input name="y" size="10" value="12">kg</td>
+			<td><input name="y" size="10" value="12"></td>
 			<td><input type="button" value="Calculate" onclick="Product()"></td>
 			<td>Product:</td>
 			<td><input name="product" size="20" value="0"></td>
@@ -51,18 +51,25 @@ function Product() {
 
 <h2>PHP Forms</h2>
 
-<p>Our web server provides in-line PHP execution for text files with the ".php" extension. Invisible to you, but embedded in this file, are segments of PHP code that are executed by the server. The code directly below this paragraph in the PHP file checks to see if this page was loaded with a POST or a GET request, and reports accordingly.</p>
+<p>Our web server provides in-line PHP execution for text files with the ".php" extension. Invisible to you, but embedded in this file, are segments of PHP code that are executed by the server. There is code below this paragraph that reports to us.</p>
+
+<?php
+
+echo "Current UNIX Time: " . time() . "<br>";
+echo "Date and Time: " . date('Y-m-d H:i:s',time()) . "<br>";
+
+?>
+
+<h2>POST versus GET</h2>
+
+<p>A GET request asks the server for information, but cannot send any significant amount of data to the server. It can send a few tokens, but nothing more. But a GET request remains in the browser history. It can be bookmarked in the browser, and its details will be remembered by the browser. We say the GET request is "cached". A POST request is used to send information to the server. We can send a bunch of data with a POST request, like a photograph or a zip file. A POST request is immediately forgotten by the server. A POST request never appears in the browser history. A POST request is not cached. After a POST request, if we ask our browser to refresh the web page, our browser will ask if we really want to do that, because when we do, we'll be re-sending information. The PHP code directly below this paragraph reports if this page was loaded with a POST or a GET.</p>
 
 <?php
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-	echo "<br>POST REQUEST";
-} else {
-	echo "<br>NOT A POST REQUEST";
+	echo "This is a <b>POST</b> request.";
 }
 if ($_SERVER["REQUEST_METHOD"] == "GET") {
-	echo "<br>GET REQUEST";
-} else {
-	echo "<br>NOT A GET REQUEST";
+	echo "This is a <b>GET</b> request.";
 }
 ?>
 
@@ -101,7 +108,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET") {
 
 <?php
 echo "\$_GET Array:<br>\n";
-ECHO "<pre>\n";
+echo "<pre>\n";
 print_r($_GET);
 echo "</pre>\n";
 echo "\$_POST Array:<br>\n";
