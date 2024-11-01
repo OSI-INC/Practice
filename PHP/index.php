@@ -83,7 +83,11 @@ comment, and the reverse sequence that ends the comment.
 <?php
 
 // Print a message to say that we are running php and all is well.
-print "<b>GREETINGS:</b> Your php is running fine.<br>";
+print "<b>GREETINGS:</b> This notice comes from a PHP print command.<br>";
+$root = $_SERVER['DOCUMENT_ROOT'];
+print "<b>DOCUMENT ROOT:</b> $root<br>";
+$wd = getcwd();
+print "<b>WORKING DIRECTORY:</b> $wd<br>";
 
 // A post method is one that sends information into the session. We 
 // look to see if certain tokens have been sent. We 
