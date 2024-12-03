@@ -116,6 +116,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <form action="Sidebar.php">
 	<input type="submit" value="Sidebar" name="sidebar" />
 </form>
+<form action="Server_Dump.php">
+	<input type="submit" value="Server Dump" name="server_dump" />
+</form>
 
 </body>
 </html>
