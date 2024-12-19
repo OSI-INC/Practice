@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
+
 <body>
 
-<p>This is Sub Page Two.</p>
-
+<h1>Sub Page 2</h1>
 <?php
 	include 'SubList.php'
 ?>
