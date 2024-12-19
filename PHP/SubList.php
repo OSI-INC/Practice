@@ -1,5 +1,5 @@
 <?php
-	$subfiles = array('Sub1', 'Sub2', 'Sub3');
+	$subfiles = array('Sub1', 'Sub2', 'Sub3', 'Sidebar');
 ?>
 <style>
 li.selected {

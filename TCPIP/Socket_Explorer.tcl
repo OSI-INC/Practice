@@ -10,9 +10,8 @@ label $f.lcmd -text "Command:"
 pack $f.lcmd -side top
 set cmd_txt [LWDAQ_text_widget $f 50 20] 
 LWDAQ_print $cmd_txt {GET / HTTP/1.1
-User-Agent: Tcl
 Host: www.bndhep.net
-Accept-Language: en, mi}
+User-Agent: Tcl}
 
 # Create a sub-frame within the master "f" frame of our Toolmaker
 # execution window.

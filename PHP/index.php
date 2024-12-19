@@ -44,7 +44,7 @@ this program.  If not, see <https://www.gnu.org/licenses/>.
 	provides its own set of variables that we can define in our php code and
 	later refer to when the session continues. The client cooperates with the
 	continuation of the session by passing a session token along with its http
-	reques. If there is no such token passed, the php server starts a new
+	request. If there is no such token passed, the php server starts a new
 	session. After about an hour, which is a standard value for a browser
 	session timeout, the server deletes an idle session. The php server uses the
 	session token to look up the session and all its variables. Session
@@ -54,6 +54,33 @@ this program.  If not, see <https://www.gnu.org/licenses/>.
 	server won't even let us put an html comment before the first php field,
 	because it thinks the comment is going to create some html, even though it
 	won't.
+	
+	When using a local PHP server, we can connect with a GET request like this:
+	
+	GET / HTTP/1.1
+	
+	We will get back the following, which includes the session identifier:
+	
+	HTTP/1.1 200 OK
+	Date: Thu, 19 Dec 2024 19:57:23 GMT
+	Connection: close
+	X-Powered-By: PHP/7.3.29
+	Set-Cookie: PHPSESSID=345d41be0dc377b33e8c739bcd5018f7; path=/
+	Expires: Thu, 19 Nov 1981 08:52:00 GMT
+	Cache-Control: no-store, no-cache, must-revalidate
+	Pragma: no-cache
+	Content-type: text/html; charset=UTF-8
+	
+	When we connect again, we specify the same session by listing the identifier
+	in a cookie property:
+	
+	GET / HTTP/1.1
+	Cookie: PHPSESSID=345d41be0dc377b33e8c739bcd5018f7
+
+	Browsers do this automatically. If we are using an exploring program like 
+	our Practice/TCPIP/Socket_Explorer.tcl, we can type the above GET instructions
+	in by hand and see what we get back. This index.php page will print out the
+	PHP session identifier.
 */
 session_start();
 
@@ -83,42 +110,20 @@ comment, and the reverse sequence that ends the comment.
 <?php
 
 // Print a message to say that we are running php and all is well.
-print "<b>GREETINGS:</b> This notice comes from a PHP print command.<br>";
+print "<b>GREETINGS:</b> This notice comes from a PHP print command.<br>\n";
 $root = $_SERVER['DOCUMENT_ROOT'];
-print "<b>DOCUMENT ROOT:</b> $root<br>";
+print "<b>DOCUMENT ROOT:</b> $root<br>\n";
 $wd = getcwd();
-print "<b>WORKING DIRECTORY:</b> $wd<br>";
-
-// A post method is one that sends information into the session. We 
-// look to see if certain tokens have been sent. We 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
-	// Check to see if a sidebar token was sent.
-	if (isset($_POST['sidebar'])) {
-		$sidebar = $_POST['sidebar'];
-	  	print "<b>sidebar</b> = $sidebar";
-	} else {
-		print "<b>sidebar</b> = none";
-	}
-}
+print "<b>WORKING DIRECTORY:</b> $wd<br>\n";
+$sid = session_id();
+print "<b>SESSION ID:</b> $sid<br>\n";
 
 ?>
 
-<!-- Each button below triggers the execution of a piece of php code. -->
-
-<br>
-<form action="Hello_Sailor.php">
-	<input type="submit" value="Hello Sailor" name="hello_sailor" />
-</form>
-<form action="Buttons.php">
-	<input type="submit" value="Buttons" name="buttons" />
-</form>
-<form action="Sidebar.php">
-	<input type="submit" value="Sidebar" name="sidebar" />
-</form>
-<form action="Server_Dump.php">
-	<input type="submit" value="Server Dump" name="server_dump" />
-</form>
+<a href="Hello_Sailor.php"><button>Hello Sailor</button></a><br>
+<a href="Buttons.php"><button>Buttons</button></a><br>
+<a href="Sidebar.php"><button>Sidebar</button></a><br>
+<a href="Server_Dump.php"><button>Server Dump</button></a><br>
 
 </body>
 </html>
