@@ -1,5 +1,10 @@
 <?php
-	$subfiles = array('Sub1', 'Sub2', 'Sub3', 'Sidebar');
+	$subfiles = array(
+		array('Sub1','Subfile Number One'),
+		array('Sub2','Subfile Number Two'),
+		array('Sub3','Subfile Number Three'),
+		array('Sidebar','Sidebar Top Level')
+	);
 ?>
 <style>
 li.selected {
@@ -12,12 +17,12 @@ li:hover {
 
 <ul>
 <?php
-	foreach ($subfiles as $value) {
+	foreach ($subfiles as $definition) {
 		print("\t<li");
-		if ($_SERVER['SCRIPT_NAME'] === '/' . $value . '.php') {
+		if ($_SERVER['SCRIPT_NAME'] === '/' . $definition[0] . '.php') {
 			print(' class="selected"');
 		}
-		print('><a href="' . $value . '.php">' . $value . '</a></li>');
+		print('><a href="' . $definition[0] . '.php">' . $definition[1] . '</a></li>');
 		print("\n");
 	}
 ?>
