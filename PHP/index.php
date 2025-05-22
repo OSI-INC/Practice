@@ -124,6 +124,7 @@ print "<b>SESSION ID:</b> $sid<br>\n";
 <a href="Buttons.php"><button>Buttons</button></a><br>
 <a href="Sidebar.php"><button>Sidebar</button></a><br>
 <a href="Server_Dump.php"><button>Server Dump</button></a><br>
+<a href="Readme.php"><button>Display Markdown Readme File</button></a><br>
 
 </body>
 </html>
